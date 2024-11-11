@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "3-字体变黑黑框.pdf",
+            "type": "debugpy",
+            "justMyCode": false,
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "args": [
+                "convert",
+                "--multi_processing=0",
+                "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf.pdf",
+                "--docx_file",
+                "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf.pc.docx",
+                "--start",
+                "0",
+                "--end",
+                "0"
+            ]
+        }
+    ]
+}
