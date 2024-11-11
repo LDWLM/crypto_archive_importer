@@ -1,6 +1,11 @@
-import pdf2docx, os, sys
+import os, sys
 
-sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/pymupdf.zip')
+# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp')
+# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/pymupdf.zip')
+# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/lxml.zip')
+sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/a.zip')
+
+import pdf2docx
 
 PDF = "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf"
 OUTPUT = "output.docx"
