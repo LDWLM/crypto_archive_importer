@@ -10,8 +10,8 @@ from pathlib import Path
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "site-packages/temp"
-ARCHIVE_INTERNAL = "_internal.so"
+ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/temp"
+ARCHIVE_INTERNAL = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_internal.zip"
 ARCHIVE_CRYPTO = "archive.zip"
 ARCHIVE_PASSED = b'a\0t\0l\0a\0s\0'
 
@@ -40,36 +40,36 @@ archive_zip(Path(ARCHIVE_INTERNAL), Path(ARCHIVE_FOLDER))
 end = time.perf_counter()
 print(f'生成普通zip包耗时: {end-beg} s')
 
-# 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
-beg = time.perf_counter()
-archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
-end = time.perf_counter()
-print(f'生成加密zip包耗时: {end-beg} s')
+# # 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
+# beg = time.perf_counter()
+# archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
+# end = time.perf_counter()
+# print(f'生成加密zip包耗时: {end-beg} s')
 
-beg = time.perf_counter()
-imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
-end = time.perf_counter()
-print(f'读取加密zip包耗时: {end-beg} s')
+# beg = time.perf_counter()
+# imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
+# end = time.perf_counter()
+# print(f'读取加密zip包耗时: {end-beg} s')
 
-beg = time.perf_counter()
-sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs')
-import pdf2docx
-end = time.perf_counter()
-print(f'导入普通zip包耗时: {end-beg} s')
+# beg = time.perf_counter()
+# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs')
+# import pdf2docx
+# end = time.perf_counter()
+# print(f'导入普通zip包耗时: {end-beg} s')
 
-beg = time.perf_counter()
+# beg = time.perf_counter()
 
-PDF = "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf"
-OUTPUT = "output.docx"
+# PDF = "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf"
+# OUTPUT = "output.docx"
 
-cv = pdf2docx.Converter(PDF)
-try:
-    cv.convert(OUTPUT)
-    os.remove(OUTPUT)
-    print(f"done")
-except Exception as e:
-    pass
-finally:
-    cv.close()
-end = time.perf_counter()
-print(f'转文件耗时: {end-beg} s')
+# cv = pdf2docx.Converter(PDF)
+# try:
+#     cv.convert(OUTPUT)
+#     os.remove(OUTPUT)
+#     print(f"done")
+# except Exception as e:
+#     pass
+# finally:
+#     cv.close()
+# end = time.perf_counter()
+# print(f'转文件耗时: {end-beg} s')
