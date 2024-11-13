@@ -10,7 +10,7 @@ from pathlib import Path
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "/home/atlas/Projects/Python/archive/site-packages/temp"
+ARCHIVE_FOLDER = "site-packages/temp"
 ARCHIVE_INTERNAL = "_internal.so"
 ARCHIVE_CRYPTO = "archive.zip"
 ARCHIVE_PASSED = b'a\0t\0l\0a\0s\0'
