@@ -65,7 +65,6 @@ OUTPUT = "output.docx"
 cv = pdf2docx.Converter(PDF)
 try:
     cv.convert(OUTPUT)
-    os.remove(OUTPUT)
     print(f"done")
 except Exception as e:
     pass
