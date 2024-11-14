@@ -1,3 +1,6 @@
 .venv
 __pycache__
 *.ipynb
+_internal.so
+output.docx
+archive.zip
