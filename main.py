@@ -26,9 +26,13 @@ def archive_zip(dstzip: Path, srcdir: Path):
 
 def archive_wrap_with_pwd(dstzip: Path, srczip: Path, pwd: bytes):
     # # Write a zip file
-    with importer.AESZipFile(dstzip, "w", encryption=importer.WZ_AES) as fp:
-        fp.setpassword(pwd)
-        fp.write(srczip.as_posix(), srczip.name)
+    czf = importer.CryptoZipFile(dstzip.as_posix(), ARCHIVE_PASSED)
+    czf.write(srczip.as_posix())
+
+def strip_wrap_with_pwd(czf: Path, zip: Path, pwd: bytes):
+    # # Write a zip file
+    czf = importer.CryptoZipFile(czf.as_posix(), ARCHIVE_PASSED)
+    czf.read(zip.as_posix())
 
 
 # %%
@@ -45,6 +49,8 @@ beg = time.perf_counter()
 archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
 end = time.perf_counter()
 print(f'生成加密zip包耗时: {end-beg} s')
+
+# strip_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path('output.zip'), ARCHIVE_PASSED)
 
 # beg = time.perf_counter()
 # imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
