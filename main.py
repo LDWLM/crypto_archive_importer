@@ -10,7 +10,7 @@ from pathlib import Path
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/temp"
+ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
 ARCHIVE_INTERNAL = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_internal.zip"
 ARCHIVE_CRYPTO = "archive.zip"
 ARCHIVE_PASSED = b'a\0t\0l\0a\0s\0'
@@ -65,7 +65,6 @@ print(f'生成普通zip包耗时: {end-beg} s')
 # cv = pdf2docx.Converter(PDF)
 # try:
 #     cv.convert(OUTPUT)
-#     os.remove(OUTPUT)
 #     print(f"done")
 # except Exception as e:
 #     pass
