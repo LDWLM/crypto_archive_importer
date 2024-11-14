@@ -11,9 +11,9 @@ from pathlib import Path
 import secretzipimport as importer
 
 ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
-ARCHIVE_INTERNAL = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_internal.zip"
-ARCHIVE_CRYPTO = "archive.zip"
-ARCHIVE_PASSED = b'a\0t\0l\0a\0s\0'
+ARCHIVE_INTERNAL = "_internal.zip"
+ARCHIVE_CRYPTO = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/archive.zip"
+ARCHIVE_PASSED = b'atlas'
 
 # %%
 def archive_zip(dstzip: Path, srcdir: Path):
@@ -40,11 +40,11 @@ archive_zip(Path(ARCHIVE_INTERNAL), Path(ARCHIVE_FOLDER))
 end = time.perf_counter()
 print(f'生成普通zip包耗时: {end-beg} s')
 
-# # 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
-# beg = time.perf_counter()
-# archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
-# end = time.perf_counter()
-# print(f'生成加密zip包耗时: {end-beg} s')
+# 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
+beg = time.perf_counter()
+archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
+end = time.perf_counter()
+print(f'生成加密zip包耗时: {end-beg} s')
 
 # beg = time.perf_counter()
 # imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
