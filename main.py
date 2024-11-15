@@ -10,9 +10,9 @@ from pathlib import Path
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "./site-packages/temp"
+ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
 ARCHIVE_INTERNAL = "./_internal.zip"
-ARCHIVE_CRYPTO = "./_pdf2docx.so"
+ARCHIVE_CRYPTO = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_pdf2docx.so"
 ARCHIVE_PASSED = b'atlas'
 
 # %%

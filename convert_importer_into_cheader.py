@@ -1,5 +1,5 @@
 IMPORTER = 'site-packages/secretzipimport.py'
-CHEADER = '/home/atlas/Projects/C/libpython38/importer.h'
+CHEADER = '/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/cpp/importer.h'
 
 with open(IMPORTER, 'r') as sfile, open(CHEADER, 'w') as dfile:
     dfile.write(f'#ifndef CONVERT_IMPORTER_INTO_CHEADER\n')
