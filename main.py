@@ -10,9 +10,9 @@ from pathlib import Path
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "site-packages/temp"
-ARCHIVE_INTERNAL = "_internal.zip"
-ARCHIVE_CRYPTO = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/archive.zip"
+ARCHIVE_FOLDER = "./site-packages/temp"
+ARCHIVE_INTERNAL = "./_internal.zip"
+ARCHIVE_CRYPTO = "./_pdf2docx.so"
 ARCHIVE_PASSED = b'atlas'
 
 # %%
@@ -54,6 +54,7 @@ print(f'生成加密zip包耗时: {end-beg} s')
 
 beg = time.perf_counter()
 imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
+imp.load()
 end = time.perf_counter()
 print(f'读取加密zip包耗时: {end-beg} s')
 
