@@ -5,7 +5,7 @@ sys.path.append("./site-packages")
 sys.path.append("./site-packages/libs")
 
 # %%
-import secretzipimport as importer
+import importer
 
 ARCHIVE_FOLDER = "./site-packages/src"
 ARCHIVE_INTERNAL = "./_internal.zip"
