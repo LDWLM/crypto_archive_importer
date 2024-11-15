@@ -13,11 +13,15 @@ import secretzipimport as importer
 ARCHIVE_FOLDER = "./site-packages/temp"
 ARCHIVE_INTERNAL = "./_internal.zip"
 ARCHIVE_CRYPTO = "./_pdf2docx.so"
-ARCHIVE_PASSED = b'atlas'
+ARCHIVE_PASSED = b"atlas"
+SKIP_RUNNING_PDF2DOCX = False
+
 
 # %%
 def archive_zip(dstzip: Path, srcdir: Path):
-    with importer.ZipFile(dstzip.as_posix(), mode="w", compression=importer.ZIP_DEFLATED) as zip:
+    with importer.ZipFile(
+        dstzip.as_posix(), mode="w", compression=importer.ZIP_DEFLATED
+    ) as zip:
         for file in srcdir.rglob("*"):
             if not file.is_file():
                 continue
@@ -28,6 +32,7 @@ def archive_wrap_with_pwd(dstzip: Path, srczip: Path, pwd: bytes):
     # # Write a zip file
     czf = importer.CryptoZipFile(dstzip.as_posix(), ARCHIVE_PASSED)
     czf.write(srczip.as_posix())
+
 
 def strip_wrap_with_pwd(czf: Path, zip: Path, pwd: bytes):
     # # Write a zip file
@@ -42,27 +47,33 @@ import time
 beg = time.perf_counter()
 archive_zip(Path(ARCHIVE_INTERNAL), Path(ARCHIVE_FOLDER))
 end = time.perf_counter()
-print(f'生成普通zip包耗时: {end-beg} s')
+print(f"生成普通zip包耗时: {end-beg} s")
 
 # 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
 beg = time.perf_counter()
 archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
 end = time.perf_counter()
-print(f'生成加密zip包耗时: {end-beg} s')
+print(f"生成加密zip包耗时: {end-beg} s")
 
 # strip_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path('output.zip'), ARCHIVE_PASSED)
+
+if SKIP_RUNNING_PDF2DOCX:
+    exit(0)
 
 beg = time.perf_counter()
 imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
 imp.load()
 end = time.perf_counter()
-print(f'读取加密zip包耗时: {end-beg} s')
+print(f"读取加密zip包耗时: {end-beg} s")
 
 beg = time.perf_counter()
-sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs')
+sys.path.append(
+    "/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs"
+)
 import pdf2docx
+
 end = time.perf_counter()
-print(f'导入普通zip包耗时: {end-beg} s')
+print(f"导入普通zip包耗时: {end-beg} s")
 
 beg = time.perf_counter()
 
@@ -78,4 +89,4 @@ except Exception as e:
 finally:
     cv.close()
 end = time.perf_counter()
-print(f'转文件耗时: {end-beg} s')
+print(f"转文件耗时: {end-beg} s")
