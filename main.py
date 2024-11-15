@@ -1,16 +1,13 @@
 import os, sys
 from pathlib import Path
 
-# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp')
-# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/pymupdf.zip')
-# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/lxml.zip')
-# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/temp/a.zip')
-# sys.path.append('/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs')
+sys.path.append("./site-packages")
+sys.path.append("./site-packages/libs")
 
 # %%
 import secretzipimport as importer
 
-ARCHIVE_FOLDER = "./site-packages/temp"
+ARCHIVE_FOLDER = "./site-packages/src"
 ARCHIVE_INTERNAL = "./_internal.zip"
 ARCHIVE_CRYPTO = "./_pdf2docx.so"
 ARCHIVE_PASSED = b"atlas"
@@ -67,9 +64,7 @@ end = time.perf_counter()
 print(f"读取加密zip包耗时: {end-beg} s")
 
 beg = time.perf_counter()
-sys.path.append(
-    "/home/atlas/Projects/Python/archive/.venv/lib/python3.8/site-packages/libs"
-)
+
 import pdf2docx
 
 end = time.perf_counter()
