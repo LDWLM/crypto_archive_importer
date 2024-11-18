@@ -1,4 +1,4 @@
-IMPORTER = 'site-packages/secretzipimport.py'
+IMPORTER = 'site-packages/importer.py'
 CHEADER = '/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/cpp/importer.h'
 
 with open(IMPORTER, 'r') as sfile, open(CHEADER, 'w') as dfile:
