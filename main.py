@@ -10,7 +10,7 @@ import importer
 ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
 ARCHIVE_INTERNAL = "./_internal.zip"
 ARCHIVE_CRYPTO = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_pdf2docx.so"
-ARCHIVE_PASSED = b'atlas'
+ARCHIVE_PASSWD = b'atlas'
 SKIP_RUNNING_PDF2DOCX = True
 
 # %%
@@ -26,13 +26,13 @@ def archive_zip(dstzip: Path, srcdir: Path):
 
 def archive_wrap_with_pwd(dstzip: Path, srczip: Path, pwd: bytes):
     # # Write a zip file
-    czf = importer.CryptoZipFile(dstzip.as_posix(), ARCHIVE_PASSED)
+    czf = importer.CryptoZipFile(dstzip.as_posix(), ARCHIVE_PASSWD)
     czf.write(srczip.as_posix())
 
 
 def strip_wrap_with_pwd(czf: Path, zip: Path, pwd: bytes):
     # # Write a zip file
-    czf = importer.CryptoZipFile(czf.as_posix(), ARCHIVE_PASSED)
+    czf = importer.CryptoZipFile(czf.as_posix(), ARCHIVE_PASSWD)
     czf.read(zip.as_posix())
 
 
@@ -47,17 +47,17 @@ print(f"生成普通zip包耗时: {end-beg} s")
 
 # 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
 beg = time.perf_counter()
-archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSED)
+archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSWD)
 end = time.perf_counter()
 print(f"生成加密zip包耗时: {end-beg} s")
 
-# strip_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path('output.zip'), ARCHIVE_PASSED)
+strip_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path('output.zip'), ARCHIVE_PASSWD)
 
 if SKIP_RUNNING_PDF2DOCX:
     exit(0)
 
 beg = time.perf_counter()
-imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSED)
+imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSWD)
 imp.load()
 end = time.perf_counter()
 print(f"读取加密zip包耗时: {end-beg} s")
