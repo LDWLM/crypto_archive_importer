@@ -1,11 +1,23 @@
 {
     "configurations": [
         {
-            "name": "test",
+            "name": "main",
             "type": "debugpy",
             "justMyCode": false,
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "args": []
+        },
+        {
+            "name": "archive",
+            "type": "debugpy",
+            "justMyCode": false,
+            "request": "launch",
+            "program": "${workspaceFolder}/archive.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONDONTWRITEBYTECODE": "1"
