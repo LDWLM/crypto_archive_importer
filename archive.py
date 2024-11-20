@@ -15,10 +15,13 @@ BASEDIR = Path(__file__).parent.absolute()
 TEMPDIR = BASEDIR / "temp"
 TEMPDIR.mkdir(exist_ok=True)
 
-PYTHON_DIR = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python"
-CHEADER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/cpp/importer.h"
-SITE_PACKAGES_DIR = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
-SITE_PACKAGES_CRYPT_ARCHIVE = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_pdf2docx.so"
+PDF2DOCXAPP = "/home/atlas/PDF2Word_libs/Pdf2DocxApp"
+PYTHON_DIR = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets/python"
+CHEADER = f"{PDF2DOCXAPP}/libpdf2docx/src/main/cpp/importer.h"
+SITE_PACKAGES_DIR = (
+    f"{PDF2DOCXAPP}/libpdf2docx/src/main/python/lib/python3.8/site-packages"
+)
+SITE_PACKAGES_CRYPT_ARCHIVE = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/libalgorithms.so"
 SITE_PACKAGES_ARCHIVE = (TEMPDIR / "site-packages.zip").as_posix()
 SITE_PACKAGES_TEMP_DIR = (TEMPDIR / "site-packages").as_posix()
 IMPORTER = (BASEDIR / "importer.py").as_posix()
@@ -66,10 +69,46 @@ def md5sum(path):
     return hash.hexdigest()
 
 
-def archive_python(dstdir: Path, srcpydir: Path):
-    if (srcpydir / "python").exists():
-        srcpydir /= "python"
+def update_libconvert(pdf2docxapp: Path, pydir: Path):
+    import os, subprocess
 
+    print(f" cleaning {pdf2docxapp}")
+    env = os.environ.copy()
+    env["JAVA_HOME"] = "/opt/android-studio/jbr"
+    subprocess.run(
+        args=f"./gradlew clean",
+        cwd=pdf2docxapp,
+        env=env,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        shell=True,
+        check=True,
+    )
+    print(f" building {pdf2docxapp}")
+    subprocess.run(
+        args=f"./gradlew assembleDebug",
+        cwd=pdf2docxapp,
+        env=env,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        shell=True,
+        check=True,
+    )
+    apk = pdf2docxapp / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk"
+    print(f" extracting apk {apk}")
+    with ZipFile(apk) as f:
+        names = f.namelist()
+        for arch in ARCHES:
+            relname = f"lib/{arch}/libconvert.so"
+            pysodir = pydir / arch
+            if relname not in names:
+                print(f"ignore {relname}")
+                continue
+            f.extract(member=relname, path=pysodir)
+            print(f" extracted {relname} -> {pysodir}")
+
+
+def archive_python(dstdir: Path, srcpydir: Path):
     assert srcpydir.exists() and (srcpydir / "lib").exists()
 
     dstdir.mkdir(exist_ok=True)
@@ -147,6 +186,11 @@ if __name__ == "__main__":
     convert_importer_into_cheader.convert(importer=IMPORTER, cheader=CHEADER)
     end = time.perf_counter()
     print(f"导入器转c代码耗时: {end-beg:.3f} s")
+
+    beg = time.perf_counter()
+    update_libconvert(Path(PDF2DOCXAPP), Path(PYTHON_DIR))
+    end = time.perf_counter()
+    print(f"更新libconvert耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
     archive_python(Path(PYTHON_ARCHIVES_DIR), Path(PYTHON_DIR))
