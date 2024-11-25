@@ -16,7 +16,7 @@ TEMPDIR = BASEDIR / "temp"
 TEMPDIR.mkdir(exist_ok=True)
 
 PDF2DOCXAPP = "/home/atlas/PDF2Word_libs/Pdf2DocxApp"
-PYTHON_DIR = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets/python"
+ASSETS_DIR = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets"
 CHEADER = f"{PDF2DOCXAPP}/libpdf2docx/src/main/cpp/importer.h"
 SITE_PACKAGES_DIR = (
     f"{PDF2DOCXAPP}/libpdf2docx/src/main/python/lib/python3.8/site-packages"
@@ -70,7 +70,7 @@ def md5sum(path):
     return hash.hexdigest()
 
 
-def update_libconvert(pdf2docxapp: Path, pydir: Path):
+def update_libconvert(pdf2docxapp: Path, assets: Path):
     import os, subprocess
 
     print(f" cleaning {pdf2docxapp}")
@@ -102,7 +102,7 @@ def update_libconvert(pdf2docxapp: Path, pydir: Path):
         names = f.namelist()
         for arch in ARCHES:
             relname = f"lib/{arch}/{SONAME}"
-            pyso = pydir / arch / SONAME
+            pyso = assets / arch / SONAME
             if relname not in names:
                 print(f"ignore {relname}")
                 continue
@@ -113,13 +113,13 @@ def update_libconvert(pdf2docxapp: Path, pydir: Path):
             print(f" move {extracted_so} -> {pyso}")
 
 
-def archive_python(dstdir: Path, srcpydir: Path):
-    assert srcpydir.exists() and (srcpydir / "lib").exists()
+def archive_python(dstdir: Path, assets: Path):
+    assert assets.exists() and (assets / "python").exists()
 
     shutil.rmtree(dstdir, ignore_errors=True)
     dstdir.mkdir(exist_ok=True)
     for arch in ARCHES:
-        archpath = srcpydir / arch
+        archpath = assets / arch
         if not archpath.exists():
             continue
 
@@ -132,18 +132,18 @@ def archive_python(dstdir: Path, srcpydir: Path):
         print(f" 正在生成{dstzip.name}和{dstchecksum.name}")
 
         def ignore(d: str, files: List[str]) -> List[str]:
-            if not srcpydir.samefile(d):
+            if not assets.samefile(d):
                 return []
-            return [file for file in files if file != arch and file != "lib"]
+            return [file for file in files if file != arch and file != "python"]
 
         def copy_function(src: str, dst: str):
             digest = md5sum(src)
-            rel = Path(src).relative_to(srcpydir).as_posix()
+            rel = Path(src).relative_to(assets).as_posix()
             checksums[rel] = digest
             return shutil.copy2(src, dst)
 
         shutil.copytree(
-            src=srcpydir,
+            src=assets,
             dst=archivebase,
             ignore=ignore,
             copy_function=copy_function,
@@ -194,11 +194,11 @@ if __name__ == "__main__":
     print(f"导入器转c代码耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
-    update_libconvert(Path(PDF2DOCXAPP), Path(PYTHON_DIR))
+    update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
     end = time.perf_counter()
     print(f"更新libconvert耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
-    archive_python(Path(PYTHON_ARCHIVES_DIR), Path(PYTHON_DIR))
+    archive_python(Path(PYTHON_ARCHIVES_DIR), Path(ASSETS_DIR))
     end = time.perf_counter()
     print(f"压缩python耗时: {end-beg:.3f} s")

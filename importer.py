@@ -354,7 +354,12 @@ class secretzipimporter:
                 mod.__builtins__ = __builtins__
             _bootstrap_external._fix_up_module(mod.__dict__, fullname, modpath)
             exec(code, mod.__dict__)
+        except ImportError as e:
+            logging.error(f'exec module: {fullname} failed: {e}')
+            del sys.modules[fullname]
+            raise
         except:
+            logging.error(f'exec module: {fullname} failed')
             del sys.modules[fullname]
             raise
 
