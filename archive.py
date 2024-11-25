@@ -28,6 +28,7 @@ IMPORTER = (BASEDIR / "importer.py").as_posix()
 SITE_PACKAGES_PASSWD = b"atlas"
 PYTHON_ARCHIVES_DIR = (TEMPDIR / "outputs").as_posix()
 ARCHES = {"arm64-v8a", "armeabi-v7a", "x86_64"}
+SONAME = "libconvert.so"
 
 
 # %%
@@ -95,22 +96,27 @@ def update_libconvert(pdf2docxapp: Path, pydir: Path):
         check=True,
     )
     apk = pdf2docxapp / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk"
+    extracted_apk_dir = TEMPDIR / apk.name
     print(f" extracting apk {apk}")
     with ZipFile(apk) as f:
         names = f.namelist()
         for arch in ARCHES:
-            relname = f"lib/{arch}/libconvert.so"
-            pysodir = pydir / arch
+            relname = f"lib/{arch}/{SONAME}"
+            pyso = pydir / arch / SONAME
             if relname not in names:
                 print(f"ignore {relname}")
                 continue
-            f.extract(member=relname, path=pysodir)
-            print(f" extracted {relname} -> {pysodir}")
+            f.extract(member=relname, path=extracted_apk_dir)
+            extracted_so = extracted_apk_dir / relname
+            print(f" extracted {relname} -> {extracted_so}")
+            shutil.copy2(extracted_so, pyso)
+            print(f" move {extracted_so} -> {pyso}")
 
 
 def archive_python(dstdir: Path, srcpydir: Path):
     assert srcpydir.exists() and (srcpydir / "lib").exists()
 
+    shutil.rmtree(dstdir, ignore_errors=True)
     dstdir.mkdir(exist_ok=True)
     for arch in ARCHES:
         archpath = srcpydir / arch
