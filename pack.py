@@ -18,7 +18,9 @@ TEMPDIR.mkdir(exist_ok=True)
 PDF2DOCXAPP = "/home/atlas/PDF2Word_libs/Pdf2DocxApp"
 ASSETS_DIR = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets"
 CHEADER = f"{PDF2DOCXAPP}/libpdf2docx/src/main/cpp/importer.h"
-SITE_PACKAGES_DIR = f"/home/atlas/Projects/Bin/pdf2docxapp-bin"
+SITE_PACKAGES_DIR = (
+    f"{PDF2DOCXAPP}/libpdf2docx/src/main/python/lib/python3.8/site-packages"
+)
 SITE_PACKAGES_CRYPT_ARCHIVE = f"{PDF2DOCXAPP}/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/libalgorithms.so"
 SITE_PACKAGES_ARCHIVE = (TEMPDIR / "site-packages.zip").as_posix()
 SITE_PACKAGES_TEMP_DIR = (TEMPDIR / "site-packages").as_posix()
@@ -85,7 +87,7 @@ def update_libconvert(pdf2docxapp: Path, assets: Path):
     )
     print(f" building {pdf2docxapp}")
     subprocess.run(
-        args=f"./gradlew assembleDebug",
+        args=f"./gradlew assembleRelease",
         cwd=pdf2docxapp,
         env=env,
         stderr=subprocess.PIPE,
@@ -93,7 +95,7 @@ def update_libconvert(pdf2docxapp: Path, assets: Path):
         shell=True,
         check=True,
     )
-    apk = pdf2docxapp / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk"
+    apk = pdf2docxapp / "app" / "build" / "outputs" / "apk" / "release" / "app-release.apk"
     extracted_apk_dir = TEMPDIR / apk.name
     print(f" extracting apk {apk}")
     with ZipFile(apk) as f:
@@ -158,35 +160,11 @@ def archive_python(dstdir: Path, assets: Path):
 
 if __name__ == "__main__":
     beg = time.perf_counter()
-    compress(dstzip=Path(SITE_PACKAGES_ARCHIVE), srcdir=Path(SITE_PACKAGES_DIR))
+    update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
     end = time.perf_counter()
-    print(f"压缩耗时: {end-beg:.3f} s")
-
-    # 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
-    beg = time.perf_counter()
-    encrypt(
-        dst=Path(SITE_PACKAGES_CRYPT_ARCHIVE),
-        srczip=Path(SITE_PACKAGES_ARCHIVE),
-        pwd=SITE_PACKAGES_PASSWD,
-    )
-    end = time.perf_counter()
-    print(f"加密耗时: {end-beg:.3f} s")
+    print(f"更新libconvert耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
-    decrypt(
-        dstzip=Path(SITE_PACKAGES_ARCHIVE),
-        src=Path(SITE_PACKAGES_CRYPT_ARCHIVE),
-        pwd=SITE_PACKAGES_PASSWD,
-    )
+    archive_python(Path(PYTHON_ARCHIVES_DIR), Path(ASSETS_DIR))
     end = time.perf_counter()
-    print(f"解密耗时: {end-beg:.3f} s")
-
-    beg = time.perf_counter()
-    decompress(dstdir=Path(SITE_PACKAGES_TEMP_DIR), srczip=Path(SITE_PACKAGES_ARCHIVE))
-    end = time.perf_counter()
-    print(f"解压耗时: {end-beg:.3f} s")
-
-    beg = time.perf_counter()
-    convert_importer_into_cheader.convert(importer=IMPORTER, cheader=CHEADER)
-    end = time.perf_counter()
-    print(f"导入器转c代码耗时: {end-beg:.3f} s")
+    print(f"压缩python耗时: {end-beg:.3f} s")
