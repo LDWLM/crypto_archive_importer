@@ -25,16 +25,16 @@
             "args": []
         },
         {
-            "name": "convert_importer_into_cheader",
+            "name": "pack",
             "type": "debugpy",
             "justMyCode": false,
             "request": "launch",
-            "program": "${workspaceFolder}/convert_importer_into_cheader.py",
+            "program": "${workspaceFolder}/pack.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONDONTWRITEBYTECODE": "1"
             },
             "args": []
-        }
+        },
     ]
 }
