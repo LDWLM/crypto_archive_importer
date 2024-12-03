@@ -28,7 +28,7 @@ IMPORTER = (BASEDIR / "importer.py").as_posix()
 SITE_PACKAGES_PASSWD = b"atlas"
 PYTHON_ARCHIVES_DIR = (TEMPDIR / "outputs").as_posix()
 ARCHES = {"arm64-v8a", "armeabi-v7a", "x86_64"}
-SONAME = "libconvert.so"
+SONAMES = {"libconvert.so", "libpreloader.so"}
 
 
 # %%
@@ -101,16 +101,17 @@ def update_libconvert(pdf2docxapp: Path, assets: Path):
     with ZipFile(apk) as f:
         names = f.namelist()
         for arch in ARCHES:
-            relname = f"lib/{arch}/{SONAME}"
-            pyso = assets / arch / SONAME
-            if relname not in names:
-                print(f"ignore {relname}")
-                continue
-            f.extract(member=relname, path=extracted_apk_dir)
-            extracted_so = extracted_apk_dir / relname
-            print(f" extracted {relname} -> {extracted_so}")
-            shutil.copy2(extracted_so, pyso)
-            print(f" move {extracted_so} -> {pyso}")
+            for soname in SONAMES:
+                relname = f"lib/{arch}/{soname}"
+                pyso = assets / arch / soname
+                if relname not in names:
+                    print(f"ignore {relname}")
+                    continue
+                f.extract(member=relname, path=extracted_apk_dir)
+                extracted_so = extracted_apk_dir / relname
+                print(f" extracted {relname} -> {extracted_so}")
+                shutil.copy2(extracted_so, pyso)
+                print(f" move {extracted_so} -> {pyso}")
 
 
 def archive_python(dstdir: Path, assets: Path):
