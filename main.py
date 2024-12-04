@@ -1,86 +1,40 @@
-import os, sys
+from argparse import ArgumentParser
 from pathlib import Path
+from typing import List, Optional, Sequence
 
-sys.path.append("./site-packages")
-sys.path.append("./site-packages/libs")
-
-# %%
-import importer
-
-ARCHIVE_FOLDER = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/python/lib/python3.8/site-packages"
-ARCHIVE_INTERNAL = "./_internal.zip"
-ARCHIVE_CRYPTO = "/home/atlas/PDF2Word_libs/Pdf2DocxApp/libpdf2docx/src/main/assets/python/lib/python3.8/site-packages/_pdf2docx.so"
-ARCHIVE_PASSWD = b'atlas'
-SKIP_RUNNING_PDF2DOCX = True
-
-# %%
-def archive_zip(dstzip: Path, srcdir: Path):
-    with importer.ZipFile(
-        dstzip.as_posix(), mode="w", compression=importer.ZIP_DEFLATED
-    ) as zip:
-        for file in srcdir.rglob("*"):
-            if not file.is_file():
-                continue
-            zip.write(file, file.relative_to(srcdir))
+import archive, pack, convert_importer_into_cheader
 
 
-def archive_wrap_with_pwd(dstzip: Path, srczip: Path, pwd: bytes):
-    # # Write a zip file
-    czf = importer.CryptoZipFile(dstzip.as_posix(), ARCHIVE_PASSWD)
-    czf.write(srczip.as_posix())
+class Args:
+    def __init__(self) -> None:
+        self.inputs: List[Path]
+        self.output: Path
+        self.temp: Path
+
+    @staticmethod
+    def parse(args: Optional[Sequence[str]] = None) -> "Args":
+        parser = ArgumentParser(prog="PROG")
+        parser.add_argument("--foo", action="store_true", help="foo help")
+        subparsers = parser.add_subparsers(help="execute task[s]")
+
+        dev_parser = subparsers.add_parser(
+            "develop",
+            help="build local develop environ: 1. archive site-packages 2. importer -> C header file",
+        )
+        dev_parser.add_argument("bar", type=int, help="bar help")
+
+        pub_parser = subparsers.add_parser(
+            "publish",
+            help="build publish package: 1. archive python (v8a,v7a) package which assembles the latest libconvert.so and libpreloader.so 2. generate md5sum of python package contents 3. output ConvertCore.java",
+        )
+        pub_parser.add_argument("--baz", choices=("X", "Y", "Z"), help="baz help")
+
+        args = parser.parse_args()
+        print(args)
+
+        obj = Args()
+        return parser.parse_args(args, namespace=obj)
 
 
-def strip_wrap_with_pwd(czf: Path, zip: Path, pwd: bytes):
-    # # Write a zip file
-    czf = importer.CryptoZipFile(czf.as_posix(), ARCHIVE_PASSWD)
-    czf.read(zip.as_posix())
-
-
-# %%
-# # 打包一个普通zip文件，用作实际导入内容
-import time
-
-beg = time.perf_counter()
-archive_zip(Path(ARCHIVE_INTERNAL), Path(ARCHIVE_FOLDER))
-end = time.perf_counter()
-print(f"生成普通zip包耗时: {end-beg} s")
-
-# 把普通zip文件再通过密码打包，防止普通zip包内部的文件列表泄漏
-beg = time.perf_counter()
-archive_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path(ARCHIVE_INTERNAL), ARCHIVE_PASSWD)
-end = time.perf_counter()
-print(f"生成加密zip包耗时: {end-beg} s")
-
-strip_wrap_with_pwd(Path(ARCHIVE_CRYPTO), Path('output.zip'), ARCHIVE_PASSWD)
-
-if SKIP_RUNNING_PDF2DOCX:
-    exit(0)
-
-beg = time.perf_counter()
-imp = importer.ZipImporterWrapper(ARCHIVE_CRYPTO, ARCHIVE_PASSWD)
-imp.load()
-end = time.perf_counter()
-print(f"读取加密zip包耗时: {end-beg} s")
-
-beg = time.perf_counter()
-
-import pdf2docx
-
-end = time.perf_counter()
-print(f"导入普通zip包耗时: {end-beg} s")
-
-beg = time.perf_counter()
-
-PDF = "/home/atlas/Downloads/test/bug/3-字体变黑黑框.pdf"
-OUTPUT = "output.docx"
-
-cv = pdf2docx.Converter(PDF)
-try:
-    cv.convert(OUTPUT)
-    print(f"done")
-except Exception as e:
+if __name__ == "__main__":
     pass
-finally:
-    cv.close()
-end = time.perf_counter()
-print(f"转文件耗时: {end-beg} s")
