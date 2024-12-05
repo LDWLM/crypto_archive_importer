@@ -137,8 +137,6 @@ def archive_python(dstdir: Path, assets: Path):
         )
         archive.compress(dstzip=archivebase / "python.zip", srcdir=archivebase / "python", with_root=True)
         shutil.rmtree(archivebase / "python")
-        archive.compress(dstzip=dstzip, srcdir=archivebase, with_root=True)
-        shutil.rmtree(archivebase)
 
         with open(dstchecksum, "w") as o:
             json.dump(checksums, o, indent=2)
@@ -160,10 +158,10 @@ if __name__ == "__main__":
     shutil.rmtree(TEMPDIR, ignore_errors=True)
     TEMPDIR.mkdir(exist_ok=True)
 
-    # beg = time.perf_counter()
-    # update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
-    # end = time.perf_counter()
-    # print(f"更新libconvert耗时: {end-beg:.3f} s")
+    beg = time.perf_counter()
+    update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
+    end = time.perf_counter()
+    print(f"更新libconvert耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
     archive_python(Path(PYTHON_ARCHIVES_DIR), Path(ASSETS_DIR))

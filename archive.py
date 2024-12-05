@@ -20,11 +20,13 @@ SITE_PACKAGES_PASSWD = b"atlas"
 
 # %%
 # 压缩
-def compress(dstzip: Path, srcdir: Path, with_root: bool = False):
+def compress(dstzip: Path, srcdir: Path, with_root: bool = False, exclude_hidden_file=True):
     dstzip.parent.mkdir(exist_ok=True)
-    with ZipFile(dstzip.as_posix(), mode="w") as zip:
+    with ZipFile(dstzip.as_posix(), mode="w", compression=ZIP_DEFLATED) as zip:
         for file in srcdir.rglob("*"):
             if not file.is_file():
+                continue
+            if exclude_hidden_file and any(map(lambda part: part.startswith("."), file.parts)):
                 continue
             if with_root:
                 zip.write(file, file.relative_to(srcdir.parent))
@@ -35,7 +37,9 @@ def compress(dstzip: Path, srcdir: Path, with_root: bool = False):
 # 解压
 def decompress(dstdir: Path, srczip: Path):
     dstdir.parent.mkdir(exist_ok=True)
-    with ZipFile(srczip.as_posix(), mode="r", compression=ZIP_DEFLATED) as zip:
+    with ZipFile(
+        srczip.as_posix(), mode="r", compression=ZIP_DEFLATED, compresslevel=9
+    ) as zip:
         zip.extractall(dstdir.as_posix())
 
 
