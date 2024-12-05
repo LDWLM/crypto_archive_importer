@@ -20,13 +20,16 @@ SITE_PACKAGES_PASSWD = b"atlas"
 
 # %%
 # 压缩
-def compress(dstzip: Path, srcdir: Path):
+def compress(dstzip: Path, srcdir: Path, with_root: bool = False):
     dstzip.parent.mkdir(exist_ok=True)
-    with ZipFile(dstzip.as_posix(), mode="w", compression=ZIP_DEFLATED) as zip:
+    with ZipFile(dstzip.as_posix(), mode="w") as zip:
         for file in srcdir.rglob("*"):
             if not file.is_file():
                 continue
-            zip.write(file, file.relative_to(srcdir))
+            if with_root:
+                zip.write(file, file.relative_to(srcdir.parent))
+            else:
+                zip.write(file, file.relative_to(srcdir))
 
 
 # 解压

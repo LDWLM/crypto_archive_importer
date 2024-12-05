@@ -99,7 +99,27 @@ def archive_python(dstdir: Path, assets: Path):
         def ignore(d: str, files: List[str]) -> List[str]:
             if not assets.samefile(d):
                 return []
-            return [file for file in files if file != arch and file != "python"]
+            return [file for file in files if file != "python"]
+
+        def copy_function(src: str, dst: str):
+            digest = md5sum(src)
+            rel = Path(src).relative_to(assets / "python").as_posix()
+            checksums[rel] = digest
+            return shutil.copy2(src, dst)
+
+        # copy python tree
+        shutil.copytree(
+            src=assets,
+            dst=archivebase,
+            ignore=ignore,
+            copy_function=copy_function,
+            dirs_exist_ok=True
+        )
+
+        def ignore(d: str, files: List[str]) -> List[str]:
+            if not assets.samefile(d):
+                return []
+            return [file for file in files if file != arch]
 
         def copy_function(src: str, dst: str):
             digest = md5sum(src)
@@ -107,18 +127,32 @@ def archive_python(dstdir: Path, assets: Path):
             checksums[rel] = digest
             return shutil.copy2(src, dst)
 
+        # copy libs into python root
         shutil.copytree(
             src=assets,
-            dst=archivebase,
+            dst=archivebase / "python",
             ignore=ignore,
             copy_function=copy_function,
-            dirs_exist_ok=True,
+            dirs_exist_ok=True
         )
-
-        archive.compress(dstzip=dstzip, srcdir=archivebase)
+        archive.compress(dstzip=archivebase / "python.zip", srcdir=archivebase / "python", with_root=True)
+        shutil.rmtree(archivebase / "python")
+        archive.compress(dstzip=dstzip, srcdir=archivebase, with_root=True)
+        shutil.rmtree(archivebase)
 
         with open(dstchecksum, "w") as o:
             json.dump(checksums, o, indent=2)
+
+
+def export_convert_core(pdf2docxapp: Path, output_dir: Path):
+    convert_core_path = pdf2docxapp / 'libpdf2docx/src/main/java/androidx/appcompat/libconvert/ConvertCore.java'
+    shutil.copy2(convert_core_path, output_dir)
+    print(f'exported {convert_core_path} -> {output_dir}')
+
+def export_readme(pdf2docxapp: Path, output_dir: Path):
+    readme_path = pdf2docxapp / 'libpdf2docx/README.md'
+    shutil.copy2(readme_path, output_dir)
+    print(f'exported {readme_path} -> {output_dir}')
 
 
 # %%
@@ -126,12 +160,15 @@ if __name__ == "__main__":
     shutil.rmtree(TEMPDIR, ignore_errors=True)
     TEMPDIR.mkdir(exist_ok=True)
 
-    beg = time.perf_counter()
-    update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
-    end = time.perf_counter()
-    print(f"更新libconvert耗时: {end-beg:.3f} s")
+    # beg = time.perf_counter()
+    # update_libconvert(Path(PDF2DOCXAPP), Path(ASSETS_DIR))
+    # end = time.perf_counter()
+    # print(f"更新libconvert耗时: {end-beg:.3f} s")
 
     beg = time.perf_counter()
     archive_python(Path(PYTHON_ARCHIVES_DIR), Path(ASSETS_DIR))
     end = time.perf_counter()
     print(f"压缩python耗时: {end-beg:.3f} s")
+
+    export_convert_core(Path(PDF2DOCXAPP), Path(PYTHON_ARCHIVES_DIR))
+    export_readme(Path(PDF2DOCXAPP), Path(PYTHON_ARCHIVES_DIR))
